@@ -10,6 +10,9 @@ const useStorageFiles = async (
     _cb: (error: Error | null, destination: string) => void
 ) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+    if (!fs.existsSync(path.join(__dirname, "../data/"))) {
+        fs.mkdirSync(path.join(__dirname, "../data/"))
+    }
     let dataDirectory = path.join(__dirname, "../data/others")
     /* const parsedUser = JSON.parse(
         (req.query["jwt"] as string) ?? ""
