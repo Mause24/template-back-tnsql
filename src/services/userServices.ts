@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
-import path from "path"
 import config from "../config"
 import {
     CannotEditException,
@@ -77,12 +76,12 @@ export const updateImageUserService = async (
         throw new MissingAttributeException()
     }
 
-    const avatarUrl = path.join(
+    const avatarUrl = [
         config.URL,
         "static",
         String(file.destination.split("\\").pop()),
-        String(file.filename.split("\\").pop())
-    )
+        String(file.filename.split("\\").pop()),
+    ].join("/")
 
     const [rows, userUpdated] = await User.update(
         { avatarImage: avatarUrl },
