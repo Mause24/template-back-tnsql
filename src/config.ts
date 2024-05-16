@@ -8,7 +8,7 @@ export default {
     PASSWORD: String(process.env.APP_PASSWORD),
     HOST: String(process.env.APP_HOST),
     DB_PORT: Number(process.env.APP_DB_PORT),
-    PORT: Number(process.env.APP_PORT),
+    PORT: Number(process.env.PORT),
     HASH: Number(process.env.APP_HASH_SALTS),
     URL: String(process.env.APP_URL),
 }
