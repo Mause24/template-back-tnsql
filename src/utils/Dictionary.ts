@@ -62,3 +62,16 @@ export const RESPONSES = {
         status: 400,
     },
 }
+
+export const filesPaths = (mimeType: string) => {
+    switch (true) {
+        case mimeType.startsWith("image/"):
+            return "images"
+        case mimeType.startsWith("file/"):
+            return "files"
+        case mimeType.startsWith("video/"):
+            return "videos"
+        default:
+            return "others"
+    }
+}

@@ -10,6 +10,7 @@ import {
 } from "../errors"
 import { JWTInterface, PROFILES, UserModelInterface } from "../interfaces"
 import User from "../models/User"
+import { filesPaths } from "../utils"
 
 export const registerService = async (
     body: Omit<UserModelInterface, "profileId">
@@ -79,8 +80,8 @@ export const updateImageUserService = async (
     const avatarUrl = [
         config.URL,
         "static",
-        String(file.destination.split("\\").pop()),
-        String(file.filename.split("\\").pop()),
+        filesPaths(file.mimetype),
+        file.filename,
     ].join("/")
 
     const [rows, userUpdated] = await User.update(

@@ -2,41 +2,52 @@ import { Request } from "express"
 import fs from "fs"
 import multer, { FileFilterCallback } from "multer"
 import path from "path"
-import { UpLoadFilesOptions } from "../interfaces"
+import { JWTInterface, UpLoadFilesOptions } from "../interfaces"
+import User from "../models/User"
 
 const useStorageFiles = async (
-    _req: Request,
+    req: Request,
     file: Express.Multer.File,
     _cb: (error: Error | null, destination: string) => void
 ) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-    if (!fs.existsSync(path.join(__dirname, "../data/"))) {
-        fs.mkdirSync(path.join(__dirname, "../data/"))
+    const basePath = path.join(__dirname, "../data/")
+    if (!fs.existsSync(basePath)) {
+        fs.mkdirSync(basePath)
     }
-    let dataDirectory = path.join(__dirname, "../data/others")
-    /* const parsedUser = JSON.parse(
+    let dataDirectory = path.join(basePath, "others")
+    const parsedUser = JSON.parse(
         (req.query["jwt"] as string) ?? ""
     ) as JWTInterface
 
-    if (parsedUser) {
-        const user = await User.findByPk(parsedUser.id)
-        if (user) {
-            user.toJSON().avatarImage
-        }
-    } */
-
     switch (true) {
         case file.mimetype.startsWith("image/"):
-            dataDirectory = path.join(__dirname, "../data/images")
-            if (!fs.existsSync(dataDirectory)) {
-                fs.mkdirSync(dataDirectory)
+            dataDirectory = path.join(basePath, "images")
+            if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+
+            if (parsedUser) {
+                const user = await User.findByPk(parsedUser.id)
+                if (user && typeof user.toJSON().avatarImage === "string") {
+                    const imageTitle = String(
+                        user.toJSON().avatarImage.split("/").pop()
+                    )
+                    if (fs.existsSync(path.join(dataDirectory, imageTitle))) {
+                        fs.unlink(path.join(dataDirectory, imageTitle), err => {
+                            if (err) {
+                                throw new Error(
+                                    "Failing on delete the old avatar"
+                                )
+                            }
+                        })
+                    }
+                }
             }
             return {
                 destination: dataDirectory,
                 fileName: uniqueSuffix + path.extname(file.originalname),
             }
         case file.mimetype.startsWith("file/"):
-            dataDirectory = path.join(__dirname, "../data/files")
+            dataDirectory = path.join(basePath, "files")
             if (!fs.existsSync(dataDirectory)) {
                 fs.mkdirSync(dataDirectory)
             }
@@ -45,7 +56,7 @@ const useStorageFiles = async (
                 fileName: uniqueSuffix + path.extname(file.originalname),
             }
         case file.mimetype.startsWith("video/"):
-            dataDirectory = path.join(__dirname, "../data/videos")
+            dataDirectory = path.join(basePath, "videos")
             if (!fs.existsSync(dataDirectory)) {
                 fs.mkdirSync(dataDirectory)
             }
