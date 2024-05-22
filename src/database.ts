@@ -8,7 +8,7 @@ export const sequelize = new Sequelize({
     password: config.PASSWORD,
     username: config.USER,
     port: config.DB_PORT,
-    logging: console.log,
+    logging: false,
 })
 
 export const onConnect = async () => {

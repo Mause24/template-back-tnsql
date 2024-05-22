@@ -16,14 +16,14 @@ const useStorageFiles = async (
         fs.mkdirSync(basePath)
     }
     let dataDirectory = path.join(basePath, "others")
-    const parsedUser = JSON.parse(
-        (req.query["jwt"] as string) ?? ""
-    ) as JWTInterface
 
     switch (true) {
-        case file.mimetype.startsWith("image/"):
+        case file.mimetype.startsWith("image/"): {
             dataDirectory = path.join(basePath, "images")
             if (!fs.existsSync(dataDirectory)) fs.mkdirSync(dataDirectory)
+            const parsedUser = JSON.parse(
+                (req.query["jwt"] as string) ?? ""
+            ) as JWTInterface
 
             if (parsedUser) {
                 const user = await User.findByPk(parsedUser.id)
@@ -46,6 +46,7 @@ const useStorageFiles = async (
                 destination: dataDirectory,
                 fileName: uniqueSuffix + path.extname(file.originalname),
             }
+        }
         case file.mimetype.startsWith("file/"):
             dataDirectory = path.join(basePath, "files")
             if (!fs.existsSync(dataDirectory)) {
@@ -76,10 +77,10 @@ const useStorageFiles = async (
 }
 
 const storage = multer.diskStorage({
-    destination: async (req, file, cb) => {
+    destination: async (req, file, cb): Promise<void> => {
         cb(null, (await useStorageFiles(req, file, cb)).destination)
     },
-    filename: async (req, file, cb) => {
+    filename: async (req, file, cb): Promise<void> => {
         cb(null, (await useStorageFiles(req, file, cb)).fileName)
     },
 })
